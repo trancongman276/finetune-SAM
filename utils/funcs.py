@@ -1,23 +1,18 @@
 from skimage.measure import label
-#Scientific computing 
+# Scientific computing
 import numpy as np
-import os
-import matplotlib.pyplot as plt
-import torch.nn.functional as F
-from torch.nn.functional import one_hot
 import cv2
 import random
-#Pytorch packages
+# Pytorch packages
 
 def random_sum_to(n, num_terms = None):
     '''
     generate num_tersm with sum as n
     '''
-    num_terms = (num_terms or r.randint(2, n)) - 1
+    num_terms = (num_terms or random.randint(2, n)) - 1
     a = random.sample(range(1, n), num_terms) + [0, n]
     list.sort(a)
     return [a[i+1] - a[i] for i in range(len(a) - 1)]
-
 
 
 def get_first_prompt(mask_cls,dist_thre_ratio=0.1,prompt_num=5,max_prompt_num=8,region_type='random'):
@@ -103,15 +98,15 @@ def get_first_prompt(mask_cls,dist_thre_ratio=0.1,prompt_num=5,max_prompt_num=8,
 def get_top_boxes(mask_cls,dist_thre_ratio=0.1,region_max_num=5,region_type='largest_5'):
     # Find all disconnected regions
     label_msk, region_ids = label(mask_cls, connectivity=2, return_num=True)
-    #print('num of regions found', region_ids)
+    # print('num of regions found', region_ids)
     ratio_list, regionid_list = [], []
     for region_id in range(1, region_ids+1):
-        #find coordinates of points in the region
+        # find coordinates of points in the region
         binary_msk = np.where(label_msk==region_id, 1, 0)
 
         # clean some region that is abnormally small
         r = np.sum(binary_msk) / np.sum(mask_cls)
-        #print('curr mask over all mask ratio', r)
+        # print('curr mask over all mask ratio', r)
         ratio_list.append(r)
         regionid_list.append(region_id)
     if len(ratio_list)>0:
@@ -144,7 +139,7 @@ def get_top_boxes(mask_cls,dist_thre_ratio=0.1,region_max_num=5,region_type='lar
         while len(prompt)<region_max_num:
             prompt.append(prompt[0])
     return prompt,mask_curr
-        
+
 def MaskToBoxSimple(mask,random_thre=0.1):
     '''
     random_thre, the randomness at each side of box
@@ -170,4 +165,3 @@ def MaskToBoxSimple(mask,random_thre=0.1):
     
 
     return [x0,y0,x1,y1]
-

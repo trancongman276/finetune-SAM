@@ -117,6 +117,64 @@ def parse_args(optional=None):
     parser.add_argument("-num_sample", type=int, default=4, help="sample pos and neg")
     parser.add_argument("-roi_size", type=int, default=96, help="resolution of roi")
 
+    # Performance and Multi-GPU Training Optimizations
+    parser.add_argument(
+        "-use_cached_dataset",
+        default=True,
+        action="store_true",
+        help="use optimized cached dataset for faster loading",
+    )
+    parser.add_argument(
+        "-cache_dir",
+        type=str,
+        default=None,
+        help="directory to store dataset cache files",
+    )
+    parser.add_argument(
+        "-num_workers",
+        type=int,
+        default=8,
+        help="number of data loading workers",
+    )
+    parser.add_argument(
+        "-num_workers_preprocessing",
+        type=int,
+        default=None,
+        help="number of workers for dataset preprocessing (defaults to num_workers)",
+    )
+    parser.add_argument(
+        "-use_distributed",
+        default=True,
+        action="store_true",
+        help="use DistributedDataParallel instead of DataParallel",
+    )
+    parser.add_argument(
+        "-mixed_precision",
+        action="store_true",
+        default=True,
+        help="enable mixed precision training for faster training and reduced memory usage",
+    )
+    parser.add_argument(
+        "-pin_memory",
+        action="store_true",
+        default=True,
+        help="pin memory in data loaders for faster GPU transfer",
+    )
+
+    # Training improvements
+    parser.add_argument(
+        "-save_every_n_epochs",
+        type=int,
+        default=10,
+        help="save periodic checkpoints every N epochs",
+    )
+    parser.add_argument(
+        "-resume_from_checkpoint",
+        type=str,
+        default=None,
+        help="path to checkpoint to resume training from",
+    )
+
     parser.add_argument(
         "-if_update_encoder", type=bool, default=False, help="if update_image_encoder"
     )

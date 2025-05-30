@@ -14,7 +14,7 @@ from .modeling import (
     PromptEncoder,
     Sam,
     TwoWayTransformer,
-    TinyViT,
+    # TinyViT,
 )
 
 
@@ -56,9 +56,9 @@ def build_sam_vit_b(args, checkpoint=None, num_classes = 1):
         checkpoint=checkpoint,
     )
 
-def build_sam_vit_t(args, checkpoint=None,  num_classes = 1):
+    # def build_sam_vit_t(args, checkpoint=None,  num_classes = 1):
     prompt_embed_dim = 256
-    #image_size = 1024
+    # image_size = 1024
     vit_patch_size = 16
     image_embedding_size = 1024 // vit_patch_size
     mobile_sam = Sam(
@@ -100,7 +100,7 @@ def build_sam_vit_t(args, checkpoint=None,  num_classes = 1):
         )
 
     mobile_sam.eval()
-    #print(mobile_sam)
+    # print(mobile_sam)
     if checkpoint is not None:
         with open(checkpoint, "rb") as f:
             state_dict = torch.load(f)
@@ -117,7 +117,7 @@ sam_model_registry = {
     "vit_h": build_sam_vit_h,
     "vit_l": build_sam_vit_l,
     "vit_b": build_sam_vit_b,
-    "vit_t": build_sam_vit_t,
+    # "vit_t": build_sam_vit_t,
 }
 
 

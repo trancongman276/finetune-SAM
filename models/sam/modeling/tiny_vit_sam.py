@@ -12,11 +12,10 @@ import torch
 import torch.nn as nn
 import torch.nn.functional as F
 import torch.utils.checkpoint as checkpoint
-from timm.models.layers import DropPath as TimmDropPath,\
-    to_2tuple, trunc_normal_
-from timm.models.registry import register_model
+from timm.layers import DropPath as TimmDropPath, to_2tuple, trunc_normal_
+from timm.models import register_model
 from typing import Tuple
-from .common import LayerNorm2d, MLPBlock, Adapter
+from .common import LayerNorm2d, Adapter
 from einops import rearrange
 
 
@@ -557,7 +556,7 @@ class LayerNorm2d(nn.Module):
         x = (x - u) / torch.sqrt(s + self.eps)
         x = self.weight[:, None, None] * x + self.bias[:, None, None]
         return x
-    
+
 class TinyViT(nn.Module):
     def __init__(self,args, img_size=224, in_chans=3, num_classes=1000,
                  embed_dims=[96, 192, 384, 768], depths=[2, 2, 6, 2],
@@ -740,7 +739,7 @@ def register_tiny_vit_model(fn):
     It is a wrapper of `register_model` with loading the pretrained checkpoint.
     '''
     def fn_wrapper(pretrained=False, **kwargs):
-        model = fn()
+        model = fn(**kwargs)
         if pretrained:
             model_name = fn.__name__
             assert model_name in _provided_checkpoints, \
@@ -757,12 +756,16 @@ def register_tiny_vit_model(fn):
 
     # rename the name of fn_wrapper
     fn_wrapper.__name__ = fn.__name__
-    return register_model(fn_wrapper)
+    # Use a unique name to avoid conflicts
+    unique_name = f"sam_{fn.__name__}"
+    fn_wrapper.__name__ = unique_name
+    return register_model(unique_name)(fn_wrapper)
 
 
 @register_tiny_vit_model
-def tiny_vit_5m_224(pretrained=False, num_classes=1000, drop_path_rate=0.0):
+def tiny_vit_5m_224(pretrained=False, num_classes=1000, drop_path_rate=0.0, args=None):
     return TinyViT(
+        args=args,
         num_classes=num_classes,
         embed_dims=[64, 128, 160, 320],
         depths=[2, 2, 6, 2],
@@ -773,8 +776,9 @@ def tiny_vit_5m_224(pretrained=False, num_classes=1000, drop_path_rate=0.0):
 
 
 @register_tiny_vit_model
-def tiny_vit_11m_224(pretrained=False, num_classes=1000, drop_path_rate=0.1):
+def tiny_vit_11m_224(pretrained=False, num_classes=1000, drop_path_rate=0.1, args=None):
     return TinyViT(
+        args=args,
         num_classes=num_classes,
         embed_dims=[64, 128, 256, 448],
         depths=[2, 2, 6, 2],
@@ -785,8 +789,9 @@ def tiny_vit_11m_224(pretrained=False, num_classes=1000, drop_path_rate=0.1):
 
 
 @register_tiny_vit_model
-def tiny_vit_21m_224(pretrained=False, num_classes=1000, drop_path_rate=0.2):
+def tiny_vit_21m_224(pretrained=False, num_classes=1000, drop_path_rate=0.2, args=None):
     return TinyViT(
+        args=args,
         num_classes=num_classes,
         embed_dims=[96, 192, 384, 576],
         depths=[2, 2, 6, 2],
@@ -797,8 +802,9 @@ def tiny_vit_21m_224(pretrained=False, num_classes=1000, drop_path_rate=0.2):
 
 
 @register_tiny_vit_model
-def tiny_vit_21m_384(pretrained=False, num_classes=1000, drop_path_rate=0.1):
+def tiny_vit_21m_384(pretrained=False, num_classes=1000, drop_path_rate=0.1, args=None):
     return TinyViT(
+        args=args,
         img_size=384,
         num_classes=num_classes,
         embed_dims=[96, 192, 384, 576],
@@ -810,8 +816,9 @@ def tiny_vit_21m_384(pretrained=False, num_classes=1000, drop_path_rate=0.1):
 
 
 @register_tiny_vit_model
-def tiny_vit_21m_512(pretrained=False, num_classes=1000, drop_path_rate=0.1):
+def tiny_vit_21m_512(pretrained=False, num_classes=1000, drop_path_rate=0.1, args=None):
     return TinyViT(
+        args=args,
         img_size=512,
         num_classes=num_classes,
         embed_dims=[96, 192, 384, 576],
